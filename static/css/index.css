@@ -291,7 +291,7 @@ body {
   transform: scale(1.2);
 }
 
-.eql-cntrb { 
+.eql-cntrb {
   font-size: 0.875rem;
   color: var(--text-light);
   font-style: italic;
@@ -360,6 +360,27 @@ code {
   background: var(--background-accent) !important;
   color: var(--text-primary) !important;
   font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace !important;
+}
+
+/* Code blocks (dark theme for logs) */
+pre.code-block {
+  background: #1e1e1e !important;
+  color: #d4d4d4 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 1rem !important;
+  font-size: 0.82rem !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+pre.code-block code {
+  background: transparent !important;
+  color: #d4d4d4 !important;
+  font-size: inherit !important;
+  white-space: pre;
+  word-wrap: normal;
 }
 
 /* BibTeX Section Improvements */
@@ -431,6 +452,60 @@ code {
 .scroll-to-top.visible {
   opacity: 1;
   visibility: visible;
+}
+
+
+/* Chart containers */
+.chart-container {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.chart-container-wide {
+  max-width: 700px;
+  margin: 0 auto 2rem;
+}
+
+/* Framework / figure images */
+.framework-img {
+  max-width: 550px;
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.figure-img {
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.figure-caption {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Callout stat block */
+.callout-stat {
+  padding: 2rem 1.5rem;
+}
+
+.callout-number {
+  font-size: 3.5rem;
+  line-height: 1.2;
+}
+
+.callout-description {
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 0.5rem auto 0;
+}
+
+/* Table improvements */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 
@@ -579,85 +654,163 @@ code {
 }
 
 
-/* Mobile Responsive Improvements */
+/* ===== Mobile (phones) ===== */
 @media screen and (max-width: 768px) {
   .hero-body {
     padding: 2rem 1rem;
   }
-  
+
   .publication-header .hero-body {
     padding: 3rem 1rem 2rem;
   }
-  
+
   .publication-title {
     font-size: 2.5rem !important;
     line-height: 1.2 !important;
     margin-bottom: 1.5rem !important;
   }
-  
+
   .publication-authors {
     font-size: 1rem !important;
   }
-  
+
   .button {
     margin: 0.25rem !important;
     font-size: 0.875rem !important;
     padding: 0.75rem 1rem !important;
   }
-  
+
   .more-works-container {
     bottom: 2rem;
     right: 1rem;
     top: auto;
   }
-  
+
   .more-works-btn {
     padding: 0.6rem 1rem;
     font-size: 0.8rem;
   }
-  
+
   .more-works-dropdown {
     width: calc(100vw - 2rem);
     right: -1rem;
     bottom: calc(100% + 0.5rem);
     top: auto;
   }
-  
+
   .results-carousel .item {
     margin: 0.5rem;
     padding: 1rem;
   }
-  
+
   .teaser .hero-body {
     padding: 1rem;
   }
-  
+
   .content.has-text-justified {
     font-size: 1rem;
   }
+
+  /* Chart containers: full-width on mobile */
+  .chart-container-wide {
+    max-width: 100%;
+    margin: 0 auto 1.5rem;
+  }
+
+  /* Side-by-side columns: force stacking on mobile */
+  .columns.is-mobile-stacked {
+    display: block;
+  }
+  .columns.is-mobile-stacked > .column {
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Section titles: smaller on mobile */
+  .title.is-3 {
+    font-size: 1.4rem !important;
+    margin-bottom: 1.25rem !important;
+    padding-bottom: 0.5rem;
+  }
+
+  .title.is-4 {
+    font-size: 1.15rem !important;
+  }
+
+  .title.is-5 {
+    font-size: 1rem !important;
+  }
+
+  /* Callout stat: smaller on phone */
+  .callout-number {
+    font-size: 2.5rem;
+  }
+
+  .callout-description {
+    font-size: 0.9rem;
+  }
+
+  .callout-stat {
+    padding: 1.5rem 1rem;
+  }
+
+  /* Framework image: smaller on mobile */
+  .framework-img {
+    max-width: 100%;
+  }
+
+  /* Figure captions: smaller */
+  .figure-caption {
+    font-size: 0.8rem;
+  }
+
+  /* Code blocks: smaller font, full width */
+  pre.code-block {
+    font-size: 0.72rem !important;
+    padding: 0.75rem !important;
+  }
+
+  /* Tables: ensure horizontal scroll */
+  .table-container {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .table {
+    font-size: 0.85rem;
+  }
+
+  /* Subtitle under main fig */
+  .teaser .subtitle {
+    font-size: 0.9rem !important;
+    line-height: 1.5;
+  }
 }
 
+/* ===== Small phones ===== */
 @media screen and (max-width: 480px) {
   .publication-title {
     font-size: 2rem !important;
   }
-  
+
   .hero-body {
     padding: 1.5rem 0.75rem;
   }
-  
+
   .more-works-container {
     position: fixed;
     bottom: 2rem;
     right: 1rem;
     z-index: 1000;
   }
-  
+
   .more-works-btn {
     padding: 0.5rem 0.75rem;
     font-size: 0.75rem;
   }
-  
+
   .more-works-dropdown {
     position: absolute;
     bottom: calc(100% + 0.5rem);
@@ -665,24 +818,40 @@ code {
     width: calc(100vw - 2rem);
     max-width: 90vw;
   }
-  
+
   .link-block {
     display: block;
     margin-bottom: 0.5rem;
   }
-  
+
   .button {
     width: 100%;
     justify-content: center;
   }
+
+  .title.is-3 {
+    font-size: 1.25rem !important;
+  }
+
+  .callout-number {
+    font-size: 2rem;
+  }
+
+  pre.code-block {
+    font-size: 0.65rem !important;
+  }
+
+  .table {
+    font-size: 0.78rem;
+  }
 }
 
-/* Tablet Responsive */
+/* ===== Tablet ===== */
 @media screen and (min-width: 769px) and (max-width: 1024px) {
   .hero-body {
     padding: 3rem 2rem;
   }
-  
+
   .publication-header .hero-body {
     padding: 4rem 2rem 3rem;
   }
@@ -718,17 +887,14 @@ a:focus {
   .more-works-container {
     display: none;
   }
-  
+
   .hero, .section {
     animation: none;
   }
-  
+
   .button {
     background: transparent !important;
     color: var(--text-primary) !important;
     box-shadow: none !important;
   }
 }
-
-
-
