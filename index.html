@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="title" content="ISO-Bench">
+  <meta name="description" content="ISO-Bench benchmarks AI coding agents on real GPU inference optimization tasks from vLLM and SGLang, using both hard and soft metrics.">
+  <meta name="keywords" content="ISO-Bench, coding agents, inference optimization, vLLM, SGLang, benchmark, LLM, GPU">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="ISO-Bench: Can Coding Agents Optimize Real-World Inference Workloads?">
+  <meta property="og:description" content="A benchmark of 54 optimization tasks from vLLM and SGLang, evaluating coding agents with both hard and soft metrics.">
+  <meta property="og:image" content="static/images/main_fig.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ISO-Bench: Can Coding Agents Optimize Real-World Inference Workloads?">
+  <meta name="twitter:description" content="A benchmark of 54 optimization tasks from vLLM and SGLang, evaluating coding agents with both hard and soft metrics.">
+  <meta name="twitter:image" content="static/images/main_fig.png">
+
+  <meta name="citation_title" content="ISO-Bench: Can Coding Agents Optimize Real-World Inference Workloads?">
+  <meta name="citation_author" content="Ayush Nangia">
+  <meta name="citation_author" content="Shikhar Mishra">
+  <meta name="citation_author" content="Aman Gokrani">
+  <meta name="citation_author" content="Paras Chopra">
+  <meta name="citation_publication_date" content="2026">
+
+  <title>ISO-Bench | Can Coding Agents Optimize Real-World Inference Workloads?</title>
+
+  <link rel="icon" type="image/png" href="static/images/clawd_full.png">
+  <link rel="apple-touch-icon" href="static/images/clawd_full.png">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+</head>
+<body>
+
+  <button class="scroll-to-top" onclick="scrollToTop()" title="Scroll to top" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">ISO-Bench</h1>
+            <p class="subtitle is-3">Can Coding Agents Optimize Real-World Inference Workloads?</p>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><a href="#">Ayush Nangia</a>,</span>
+              <span class="author-block"><a href="#">Shikhar Mishra</a>,</span>
+              <span class="author-block"><a href="#">Aman Gokrani</a>,</span>
+              <span class="author-block"><a href="#">Paras Chopra</a></span>
+            </div>
+
+            <div class="is-size-6 publication-authors" style="margin-bottom: 1rem;">
+              <span class="author-block"><strong>Pre-print 2026</strong></span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <span class="link-block">
+                  <a href="#" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="ai ai-arxiv"></i></span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="#" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fab fa-github"></i></span>
+                    <span>Code</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="#" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">&#129303;</span>
+                    <span>HuggingFace</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Main figure -->
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <div class="hero-body">
+        <img src="static/images/main_fig.png" alt="ISO-Bench evaluation pipeline" style="width:100%; border-radius:16px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);">
+        <h2 class="subtitle has-text-centered">
+          <strong>Figure 1:</strong> ISO-Bench evaluation pipeline. Given a codebase and task description, a coding agent produces an optimization patch. We compare this patch against the human commit using hard metrics (TTFT, throughput) and soft metrics (bottleneck targeting, implementation approach). Hard metrics measure performance improvement; soft metrics assess whether the agent targeted the correct code.
+        </h2>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Key Contributions -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3">Key Contributions</h2>
+          <div class="content">
+            <ul>
+              <li>We introduce <strong>ISO-Bench</strong>, a benchmark of <strong>54 tasks</strong> curated from merged pull requests in <a href="https://github.com/vllm-project/vllm" target="_blank">vLLM</a> (39 tasks) and <a href="https://github.com/sgl-project/sglang" target="_blank">SGLang</a> (15 tasks), two of the most popular LLM serving frameworks.</li>
+              <li>We propose a <strong>dual-metric evaluation framework</strong> combining hard (execution-based) and soft (LLM-based) metrics, revealing that hard metrics alone overestimate agent capabilities by up to <strong>20%</strong>.</li>
+              <li>We introduce the <strong>quadrant framework</strong> that classifies agent outcomes into True Success, Good Intent, Lucky Win, and Failure, distinguishing genuine optimization from accidental improvements.</li>
+              <li>We show that <strong>understanding ≠ execution</strong>: agents demonstrate up to 87.2% correct bottleneck identification but achieve only 17.9% true success, exposing a fundamental capability gap.</li>
+              <li>We evaluate <strong>three open-source models</strong> and find a <strong>0% success rate</strong>, highlighting the difficulty of real-world inference optimization.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Introduction -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3">Introduction</h2>
+          <div class="content has-text-justified">
+            <p>
+              AI coding agents are increasingly used for software engineering tasks, yet existing benchmarks primarily rely on execution-based metrics: does the code run? Does it pass tests? While necessary, these metrics can be <em>gamed</em>. An agent may produce a patch that improves runtime without actually targeting the correct bottleneck, yielding improvements that are coincidental and non-repeatable.
+            </p>
+            <p>
+              This is particularly problematic for <strong>GPU inference optimization</strong>, where performance gains can arise from unrelated system effects (cache warming, memory layout changes, kernel scheduling). An agent that achieves a 5% throughput improvement by restructuring imports has not truly optimized inference. It got lucky.
+            </p>
+            <p>
+              To address this, we introduce <strong>ISO-Bench</strong>, a benchmark of 54 real optimization tasks from <strong>vLLM</strong> (39 tasks) and <strong>SGLang</strong> (15 tasks). Each task provides an agent with a codebase snapshot and a bottleneck description from a real GitHub issue, and the agent must produce an optimization patch evaluated against the expert human solution from the corresponding merged PR.
+            </p>
+            <p>
+              Crucially, we evaluate with <em>both</em> hard metrics (execution-based: TTFT, throughput with a 5% significance threshold) and soft metrics (LLM-based semantic analysis: does the patch target the right bottleneck? Does it use the right approach?). We show that both are necessary for complete evaluation.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- The Dual-Metric Framework -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3">The Dual-Metric Framework</h2>
+          <div class="content has-text-justified">
+            <p>
+              <strong>Hard metrics</strong> measure execution outcomes. We run agent-generated patches against ground-truth benchmarks and check whether key performance indicators (TTFT, throughput, latency) improve by at least 5%, a threshold chosen to filter out noise from GPU variability.
+            </p>
+            <p>
+              <strong>Soft metrics</strong> measure semantic understanding. An LLM judge (Gemini-3-Flash-Preview) analyzes the agent's patch against the expert solution along two dimensions: (1) <em>bottleneck targeting</em>, did the agent identify and address the correct performance bottleneck? and (2) <em>implementation approach</em>, did the agent use a valid optimization strategy?
+            </p>
+            <p>
+              Combining both metrics yields four distinct outcomes:
+            </p>
+          </div>
+
+          <div class="has-text-centered" style="margin-bottom: 1.5rem;">
+            <img src="static/images/quadrant_framework.png" alt="Quadrant framework diagram" style="max-width: 550px; width: 100%; border-radius: 16px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);">
+          </div>
+          <h2 class="subtitle has-text-centered" style="margin-bottom: 2rem;">
+            <strong>Figure 2:</strong> The quadrant framework. Hard metrics on one axis, soft metrics on the other, yielding four distinct outcome categories.
+          </h2>
+
+          <div class="table-container">
+            <table class="table is-striped is-fullwidth">
+              <thead><tr><th>Quadrant</th><th>Hard Metric</th><th>Soft Metric</th><th>Meaning</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Q1: True Success</strong></td><td>Pass</td><td>Pass</td><td>Right understanding + right execution</td></tr>
+                <tr><td><strong>Q2: Good Intent</strong></td><td>Fail</td><td>Pass</td><td>Right understanding, wrong execution</td></tr>
+                <tr><td><strong>Q3: Lucky Win</strong></td><td>Pass</td><td>Fail</td><td>Wrong understanding, right results (coincidental)</td></tr>
+                <tr><td><strong>Q4: Failure</strong></td><td>Fail</td><td>Fail</td><td>Wrong understanding + wrong execution</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="content has-text-justified">
+            <p>
+              <strong>Q3 (Lucky Win)</strong> is the critical category that hard-only evaluation misses entirely. These agents improved performance metrics but targeted the wrong bottleneck. Their gains are coincidental and unlikely to generalize. Only the combination of both metrics can detect this failure mode.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Experiments -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3">Experiments</h2>
+          <div class="content has-text-justified">
+            <p>
+              We evaluate four agent configurations: <strong>Claude Code</strong> (Claude Sonnet 4.5), <strong>Codex CLI</strong> (GPT-5), <strong>TRAE (Sonnet)</strong> (Claude Sonnet 4.5), and <strong>TRAE (GPT-5)</strong> (GPT-5). Each agent is given the full codebase, the bottleneck description, and 120 minutes to produce an optimization patch.
+            </p>
+          </div>
+
+          <!-- True Success -->
+          <h3 class="title is-4">Can Agents Optimize GPU Inference Code?</h3>
+          <div class="content has-text-justified">
+            <p><strong>True Success</strong> requires both passing hard metrics <em>and</em> demonstrating correct bottleneck targeting via soft metrics.</p>
+          </div>
+          <div class="table-container">
+            <table class="table is-striped is-fullwidth">
+              <thead><tr><th>Agent</th><th>Model</th><th>vLLM (39 tasks)</th><th>SGLang (15 tasks)</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Claude Code</strong></td><td>Claude Sonnet 4.5</td><td><strong>46.2%</strong></td><td>26.7%</td></tr>
+                <tr><td>TRAE (Sonnet)</td><td>Claude Sonnet 4.5</td><td>28.2%</td><td>80.0%</td></tr>
+                <tr><td>TRAE (GPT-5)</td><td>GPT-5</td><td>17.9%</td><td><strong>86.7%</strong></td></tr>
+                <tr><td>Codex CLI</td><td>GPT-5</td><td>20.5%</td><td>80.0%</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="content has-text-justified">
+            <p>
+              No single agent dominates. Claude Code leads on vLLM (46.2%) but drops to 26.7% on SGLang. TRAE (GPT-5) leads on SGLang (86.7%) but achieves only 17.9% on vLLM. Rankings flip completely between codebases, suggesting that single-codebase evaluations can overstate generalization.
+            </p>
+          </div>
+
+          <!-- Hard vs True Success -->
+          <h3 class="title is-4">Do Hard Metrics Tell the Full Story?</h3>
+          <div class="content has-text-justified">
+            <p>The gap between Hard Success and True Success reveals how often agents succeed accidentally (Lucky Wins). Hard metrics alone can overestimate agent capabilities.</p>
+          </div>
+
+          <h4 class="title is-5">vLLM</h4>
+          <div class="table-container">
+            <table class="table is-striped is-fullwidth">
+              <thead><tr><th>Agent</th><th>Hard Success</th><th>True Success</th><th>Gap</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Claude Code</strong></td><td>56.4%</td><td>46.2%</td><td>10.2%</td></tr>
+                <tr><td>Codex CLI</td><td>33.3%</td><td>20.5%</td><td><strong>12.8%</strong></td></tr>
+                <tr><td>TRAE (Sonnet)</td><td>33.3%</td><td>28.2%</td><td>5.1%</td></tr>
+                <tr><td>TRAE (GPT-5)</td><td>20.5%</td><td>17.9%</td><td>2.6%</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4 class="title is-5">SGLang</h4>
+          <div class="table-container">
+            <table class="table is-striped is-fullwidth">
+              <thead><tr><th>Agent</th><th>Hard Success</th><th>True Success</th><th>Gap</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Claude Code</strong></td><td>46.7%</td><td>26.7%</td><td><strong>20.0%</strong></td></tr>
+                <tr><td>Codex CLI</td><td>80.0%</td><td>80.0%</td><td>0.0%</td></tr>
+                <tr><td>TRAE (Sonnet)</td><td>80.0%</td><td>80.0%</td><td>0.0%</td></tr>
+                <tr><td>TRAE (GPT-5)</td><td>86.7%</td><td>86.7%</td><td>0.0%</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="content has-text-justified">
+            <p>
+              On vLLM, gaps range from 2.6% to 12.8%. On SGLang, Claude Code shows the largest gap (20.0%), while all other agents have zero gap, meaning every hard success was also a true success. Notably, TRAE (Sonnet) and Claude Code use the same underlying model (Claude Sonnet 4.5), yet their scaffolding produces very different outcomes, suggesting that scaffolding matters as much as the model.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Understanding != Execution -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3">Understanding ≠ Execution</h2>
+          <div class="content has-text-justified">
+            <p>
+              Perhaps the most striking finding: agents frequently identify the correct bottleneck (Q1 + Q2) but fail to implement a working solution. On vLLM, three of four agents have their highest quadrant count in Q2 (Good Intent, Bad Execution). The gap between correct understanding and true success reveals a fundamental limitation: <strong>knowing what to do is not the same as doing it correctly.</strong>
+            </p>
+          </div>
+
+          <div class="notification is-warning is-light has-text-centered">
+            <p class="is-size-1 has-text-weight-bold has-text-danger">69.3%</p>
+            <p>TRAE (GPT-5) correctly identifies 87.2% of vLLM bottlenecks but achieves only 17.9% true success, the largest gap of any agent.</p>
+          </div>
+
+          <h3 class="title is-4">Understanding vs. Execution Gap (vLLM)</h3>
+          <div class="table-container">
+            <table class="table is-striped is-fullwidth">
+              <thead><tr><th>Agent</th><th>Correct Target (Q1+Q2)</th><th>True Success (Q1)</th><th>Gap</th></tr></thead>
+              <tbody>
+                <tr><td>TRAE (GPT-5)</td><td>87.2%</td><td>17.9%</td><td><strong>69.3%</strong></td></tr>
+                <tr><td>Codex CLI</td><td>71.8%</td><td>20.5%</td><td><strong>51.3%</strong></td></tr>
+                <tr><td>TRAE (Sonnet)</td><td>79.5%</td><td>28.2%</td><td><strong>51.3%</strong></td></tr>
+                <tr><td>Claude Code</td><td>84.6%</td><td>46.2%</td><td><strong>38.4%</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="content has-text-justified">
+            <p>
+              Even the best-performing agent (Claude Code) has a 38.4% gap. On SGLang, the gap narrows considerably: all agents except Claude Code identify the correct target in all 15 tasks, and they also demonstrate much stronger execution. This suggests the bottleneck in current coding agents is not comprehension but <em>implementation</em>, and this gap varies significantly across codebases.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Quadrant Distribution -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3">Quadrant Distribution</h2>
+          <div class="content has-text-justified">
+            <p>The full distribution of outcomes across all four quadrants reveals where each agent spends most of its attempts.</p>
+          </div>
+
+          <h4 class="title is-5">vLLM (39 tasks)</h4>
+          <div class="table-container">
+            <table class="table is-striped is-fullwidth">
+              <thead><tr><th>Agent</th><th>Q1 (True Success)</th><th>Q2 (Good Intent)</th><th>Q3 (Lucky Win)</th><th>Q4 (Failure)</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Claude Code</strong></td><td><strong>18</strong></td><td>15</td><td>4</td><td>2</td></tr>
+                <tr><td>Codex CLI</td><td>8</td><td>20</td><td>5</td><td>6</td></tr>
+                <tr><td>TRAE (Sonnet)</td><td>11</td><td>20</td><td>2</td><td>6</td></tr>
+                <tr><td>TRAE (GPT-5)</td><td>7</td><td><strong>27</strong></td><td>1</td><td>4</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4 class="title is-5">SGLang (15 tasks)</h4>
+          <div class="table-container">
+            <table class="table is-striped is-fullwidth">
+              <thead><tr><th>Agent</th><th>Q1 (True Success)</th><th>Q2 (Good Intent)</th><th>Q3 (Lucky Win)</th><th>Q4 (Failure)</th></tr></thead>
+              <tbody>
+                <tr><td>Claude Code</td><td>4</td><td>8</td><td>3</td><td>0</td></tr>
+                <tr><td>Codex CLI</td><td>12</td><td>3</td><td>0</td><td>0</td></tr>
+                <tr><td>TRAE (Sonnet)</td><td>12</td><td>3</td><td>0</td><td>0</td></tr>
+                <tr><td>TRAE (GPT-5)</td><td><strong>13</strong></td><td>2</td><td>0</td><td>0</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="content has-text-justified">
+            <p>
+              On vLLM, Q2 (Good Intent) dominates for most agents, confirming that the primary failure mode is execution rather than understanding. On SGLang, the pattern reverses: most outcomes are Q1 (True Success), except for Claude Code which still struggles with execution despite using the same model as TRAE (Sonnet).
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Open-Source Models -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3">Open-Source Models</h2>
+          <div class="content has-text-justified">
+            <p>
+              We evaluated three open-source models using the same TRAE-Agent scaffolding. None produced a single working optimization, and their failures cluster into distinct patterns:
+            </p>
+
+            <h4>MiniMax-M2.1 — <em>Planning Without Execution</em></h4>
+            <p>
+              Verbalized detailed optimization plans for 75 steps but never executed a single tool call. Generated 81,782 output tokens over 477 seconds with zero tool invocations.
+            </p>
+            <table class="table is-fullwidth" style="font-size: 0.9rem;">
+              <tbody>
+                <tr><td><strong>Tool calls</strong></td><td>0</td></tr>
+                <tr><td><strong>Steps</strong></td><td>75</td></tr>
+                <tr><td><strong>Duration</strong></td><td>477s</td></tr>
+                <tr><td><strong>Output tokens</strong></td><td>81,782 (171 tok/s)</td></tr>
+                <tr><td><strong>Input tokens</strong></td><td>1,599,945</td></tr>
+              </tbody>
+            </table>
+            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; font-size: 0.85rem; overflow-x: auto;"><code>Step 73: Completed
+LLM Response: The user keeps saying I haven't completed
+    the task. I need to explore the repository and
+    make changes. Let me start by using the
+    str_replace_based_edit_tool tool.
+
+    I need to actually use the tools now.
+    I need to actually use the tools now.
+    I need to actually use the tools now.
+    I need to actually use the tools now.
+    I need to actually use the tools now.
+    <span style="color: #f5576c;">[...repeated 2,412 times total...]</span>
+
+Step 74: Completed
+LLM Response: I need to actually use the tools now...</code></pre>
+            <p>
+              The model can verbalize the correct strategy ("use str_replace_based_edit_tool") but cannot translate this into an actual tool call. The phrase appears 2,412 times without a single invocation.
+            </p>
+
+            <h4>GPT-OSS-120B — <em>Environment Confusion</em></h4>
+            <p>
+              Fundamentally misunderstood the task environment. Instead of optimizing vLLM code, attempted to create mock implementations of PyTorch, Triton, and Transformers libraries inside the project directory (~84 file creation attempts).
+            </p>
+            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; font-size: 0.85rem; overflow-x: auto;"><code><span style="color: #6a9955;">Files the model attempted to create:</span>
+<span style="color: #4ec9b0;">+ vllm_core-0006/torch/__init__.py</span>
+<span style="color: #4ec9b0;">+ vllm_core-0006/torch/nn/__init__.py</span>
+<span style="color: #4ec9b0;">+ vllm_core-0006/torch/cuda/__init__.py</span>
+<span style="color: #4ec9b0;">+ vllm_core-0006/triton/__init__.py</span>
+<span style="color: #4ec9b0;">+ vllm_core-0006/transformers/__init__.py</span>
+
+<span style="color: #6a9955;">Contents of attempted torch/__init__.py:</span>
+class dtype:
+    pass
+
+float16 = 'float16'
+float32 = 'float32'
+__version__ = '0.0.0'</code></pre>
+            <p>
+              The model cannot distinguish between "code I should optimize" and "libraries I should use." It attempted to recreate PyTorch from scratch rather than importing it as a dependency.
+            </p>
+
+            <h4>GLM-4.7 — <em>Task Completion Failure</em></h4>
+            <p>
+              Made valid code edits (59 successful <code>str_replace</code> operations across 386 tool calls) but failed to complete the task workflow.
+            </p>
+            <table class="table is-fullwidth" style="font-size: 0.9rem;">
+              <tbody>
+                <tr><td><strong>Tool calls</strong></td><td>386 (327 bash, 59 str_replace)</td></tr>
+                <tr><td><strong>Final status</strong></td><td>max_steps_exceeded (400 steps)</td></tr>
+              </tbody>
+            </table>
+            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; font-size: 0.85rem; overflow-x: auto;"><code><span style="color: #6a9955;">Successful edits committed (Step 196):</span>
+git commit output: 2 files changed, 11 insertions(+), 9 deletions(-)
+
+<span style="color: #6a9955;">Sample optimization in scheduler.py:</span>
+<span style="color: #f5576c;">- self._num_batched_tokens += num_batched_tokens</span>
+<span style="color: #4ec9b0;">+ self._num_batched_tokens = self._num_batched_tokens + num_batched_tokens</span>
+
+<span style="color: #6a9955;">Then at Step 198, attempted to verify:</span>
+<span style="color: #f5576c;">error: patch failed: tests/core/test_scheduler.py:214</span>
+<span style="color: #f5576c;">error: tests/core/test_scheduler.py: patch does not apply</span>
+
+Model response: "Let me try a different approach..."
+<span style="color: #f5576c;">[...cycled through git operations for 200+ more steps...]</span>
+
+Final status: max_steps_exceeded (400 steps)</code></pre>
+            <p>
+              The model successfully made valid edits and committed them, but when it tried to re-apply the already-applied patch for verification, git returned "patch does not apply." Unable to interpret this as success, it cycled through alternative approaches for 200+ steps without ever calling <code>finish</code>.
+            </p>
+
+            <p>
+              These failure modes illustrate qualitatively different challenges: tool use capability (MiniMax), environment grounding (GPT-OSS), and workflow management (GLM). Real-world inference optimization requires all three.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- BibTeX -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <div class="bibtex-header">
+        <h2 class="title">BibTeX</h2>
+        <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
+          <i class="fas fa-copy"></i>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+      <pre id="bibtex-code"><code>@article{isobench2026,
+  title   = {ISO-Bench: Can Coding Agents Optimize
+             Real-World Inference Workloads?},
+  author  = {Ayush Nangia and Shikhar Mishra and Aman Gokrani and Paras Chopra},
+  year    = {2026}
+}</code></pre>
+    </div>
+  </section>
+
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+              You are free to borrow the source code of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
