@@ -39,6 +39,7 @@
   <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script defer src="static/js/fontawesome.all.min.js"></script>
   <script defer src="static/js/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -214,27 +215,13 @@
             </p>
           </div>
 
-          <!-- True Success -->
+          <!-- True Success Chart -->
           <h3 class="title is-4">Can Agents Optimize GPU Inference Code?</h3>
           <div class="content has-text-justified">
-            <p><strong>True Success</strong> requires both passing hard metrics <em>and</em> demonstrating correct bottleneck targeting via soft metrics.</p>
+            <p><strong>True Success</strong> requires both passing hard metrics <em>and</em> demonstrating correct bottleneck targeting via soft metrics. No single agent dominates: Claude Code leads on vLLM (46.2%) but drops to 26.7% on SGLang. Rankings flip completely between codebases.</p>
           </div>
-          <div class="table-container">
-            <table class="table is-striped is-fullwidth">
-              <thead><tr><th>Agent</th><th>Model</th><th>vLLM (39 tasks)</th><th>SGLang (15 tasks)</th></tr></thead>
-              <tbody>
-                <tr><td><strong>Claude Code</strong></td><td>Claude Sonnet 4.5</td><td><strong>46.2%</strong></td><td>26.7%</td></tr>
-                <tr><td>TRAE (Sonnet)</td><td>Claude Sonnet 4.5</td><td>28.2%</td><td>80.0%</td></tr>
-                <tr><td>TRAE (GPT-5)</td><td>GPT-5</td><td>17.9%</td><td><strong>86.7%</strong></td></tr>
-                <tr><td>Codex CLI</td><td>GPT-5</td><td>20.5%</td><td>80.0%</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="content has-text-justified">
-            <p>
-              No single agent dominates. Claude Code leads on vLLM (46.2%) but drops to 26.7% on SGLang. TRAE (GPT-5) leads on SGLang (86.7%) but achieves only 17.9% on vLLM. Rankings flip completely between codebases, suggesting that single-codebase evaluations can overstate generalization.
-            </p>
+          <div style="max-width: 700px; margin: 0 auto 2rem;">
+            <canvas id="trueSuccessChart"></canvas>
           </div>
 
           <!-- Hard vs True Success -->
@@ -243,30 +230,19 @@
             <p>The gap between Hard Success and True Success reveals how often agents succeed accidentally (Lucky Wins). Hard metrics alone can overestimate agent capabilities.</p>
           </div>
 
-          <h4 class="title is-5">vLLM</h4>
-          <div class="table-container">
-            <table class="table is-striped is-fullwidth">
-              <thead><tr><th>Agent</th><th>Hard Success</th><th>True Success</th><th>Gap</th></tr></thead>
-              <tbody>
-                <tr><td><strong>Claude Code</strong></td><td>56.4%</td><td>46.2%</td><td>10.2%</td></tr>
-                <tr><td>Codex CLI</td><td>33.3%</td><td>20.5%</td><td><strong>12.8%</strong></td></tr>
-                <tr><td>TRAE (Sonnet)</td><td>33.3%</td><td>28.2%</td><td>5.1%</td></tr>
-                <tr><td>TRAE (GPT-5)</td><td>20.5%</td><td>17.9%</td><td>2.6%</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <h4 class="title is-5">SGLang</h4>
-          <div class="table-container">
-            <table class="table is-striped is-fullwidth">
-              <thead><tr><th>Agent</th><th>Hard Success</th><th>True Success</th><th>Gap</th></tr></thead>
-              <tbody>
-                <tr><td><strong>Claude Code</strong></td><td>46.7%</td><td>26.7%</td><td><strong>20.0%</strong></td></tr>
-                <tr><td>Codex CLI</td><td>80.0%</td><td>80.0%</td><td>0.0%</td></tr>
-                <tr><td>TRAE (Sonnet)</td><td>80.0%</td><td>80.0%</td><td>0.0%</td></tr>
-                <tr><td>TRAE (GPT-5)</td><td>86.7%</td><td>86.7%</td><td>0.0%</td></tr>
-              </tbody>
-            </table>
+          <div class="columns" style="margin-bottom: 1rem;">
+            <div class="column">
+              <h4 class="title is-5 has-text-centered">vLLM (39 tasks)</h4>
+              <div style="max-width: 500px; margin: 0 auto;">
+                <canvas id="hardVsTrueVllmChart"></canvas>
+              </div>
+            </div>
+            <div class="column">
+              <h4 class="title is-5 has-text-centered">SGLang (15 tasks)</h4>
+              <div style="max-width: 500px; margin: 0 auto;">
+                <canvas id="hardVsTrueSglangChart"></canvas>
+              </div>
+            </div>
           </div>
 
           <div class="content has-text-justified">
@@ -297,17 +273,20 @@
             <p>TRAE (GPT-5) correctly identifies 87.2% of vLLM bottlenecks but achieves only 17.9% true success, the largest gap of any agent.</p>
           </div>
 
-          <h3 class="title is-4">Understanding vs. Execution Gap (vLLM)</h3>
-          <div class="table-container">
-            <table class="table is-striped is-fullwidth">
-              <thead><tr><th>Agent</th><th>Correct Target (Q1+Q2)</th><th>True Success (Q1)</th><th>Gap</th></tr></thead>
-              <tbody>
-                <tr><td>TRAE (GPT-5)</td><td>87.2%</td><td>17.9%</td><td><strong>69.3%</strong></td></tr>
-                <tr><td>Codex CLI</td><td>71.8%</td><td>20.5%</td><td><strong>51.3%</strong></td></tr>
-                <tr><td>TRAE (Sonnet)</td><td>79.5%</td><td>28.2%</td><td><strong>51.3%</strong></td></tr>
-                <tr><td>Claude Code</td><td>84.6%</td><td>46.2%</td><td><strong>38.4%</strong></td></tr>
-              </tbody>
-            </table>
+          <!-- Good Intent figures from paper -->
+          <div class="columns" style="margin-bottom: 1.5rem;">
+            <div class="column">
+              <div class="has-text-centered">
+                <img src="static/images/good_intent_vllm.png" alt="Good Intent vs Bad Execution on vLLM" style="width:100%; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+              </div>
+              <p class="has-text-centered" style="margin-top: 0.5rem; font-size: 0.9rem;"><strong>Figure 3:</strong> Good Intent vs Bad Execution on vLLM (39 tasks). Light bars show correct target identification (Q1+Q2). Dark bars show True Success (Q1). The gap represents Q2 failures.</p>
+            </div>
+            <div class="column">
+              <div class="has-text-centered">
+                <img src="static/images/good_intent_sglang.png" alt="Good Intent vs Bad Execution on SGLang" style="width:100%; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+              </div>
+              <p class="has-text-centered" style="margin-top: 0.5rem; font-size: 0.9rem;"><strong>Figure 4:</strong> Good Intent vs Bad Execution on SGLang (15 tasks). Light bars show correct target identification (Q1+Q2). Dark bars show True Success (Q1). The gap represents Q2 failures.</p>
+            </div>
           </div>
 
           <div class="content has-text-justified">
@@ -331,30 +310,19 @@
             <p>The full distribution of outcomes across all four quadrants reveals where each agent spends most of its attempts.</p>
           </div>
 
-          <h4 class="title is-5">vLLM (39 tasks)</h4>
-          <div class="table-container">
-            <table class="table is-striped is-fullwidth">
-              <thead><tr><th>Agent</th><th>Q1 (True Success)</th><th>Q2 (Good Intent)</th><th>Q3 (Lucky Win)</th><th>Q4 (Failure)</th></tr></thead>
-              <tbody>
-                <tr><td><strong>Claude Code</strong></td><td><strong>18</strong></td><td>15</td><td>4</td><td>2</td></tr>
-                <tr><td>Codex CLI</td><td>8</td><td>20</td><td>5</td><td>6</td></tr>
-                <tr><td>TRAE (Sonnet)</td><td>11</td><td>20</td><td>2</td><td>6</td></tr>
-                <tr><td>TRAE (GPT-5)</td><td>7</td><td><strong>27</strong></td><td>1</td><td>4</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <h4 class="title is-5">SGLang (15 tasks)</h4>
-          <div class="table-container">
-            <table class="table is-striped is-fullwidth">
-              <thead><tr><th>Agent</th><th>Q1 (True Success)</th><th>Q2 (Good Intent)</th><th>Q3 (Lucky Win)</th><th>Q4 (Failure)</th></tr></thead>
-              <tbody>
-                <tr><td>Claude Code</td><td>4</td><td>8</td><td>3</td><td>0</td></tr>
-                <tr><td>Codex CLI</td><td>12</td><td>3</td><td>0</td><td>0</td></tr>
-                <tr><td>TRAE (Sonnet)</td><td>12</td><td>3</td><td>0</td><td>0</td></tr>
-                <tr><td>TRAE (GPT-5)</td><td><strong>13</strong></td><td>2</td><td>0</td><td>0</td></tr>
-              </tbody>
-            </table>
+          <div class="columns" style="margin-bottom: 1rem;">
+            <div class="column">
+              <h4 class="title is-5 has-text-centered">vLLM (39 tasks)</h4>
+              <div style="max-width: 500px; margin: 0 auto;">
+                <canvas id="quadrantVllmChart"></canvas>
+              </div>
+            </div>
+            <div class="column">
+              <h4 class="title is-5 has-text-centered">SGLang (15 tasks)</h4>
+              <div style="max-width: 500px; margin: 0 auto;">
+                <canvas id="quadrantSglangChart"></canvas>
+              </div>
+            </div>
           </div>
 
           <div class="content has-text-justified">
@@ -368,8 +336,46 @@
   </section>
 
 
-  <!-- Open-Source Models -->
+  <!-- Does Performance Generalize? -->
   <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3">Does Performance Generalize Across Codebases?</h2>
+          <div class="content has-text-justified">
+            <p>
+              Agent rankings shift between vLLM and SGLang, with the top performer on one codebase becoming a bottom performer on the other. Each agent maintains its preferred strategy regardless of the project. Claude Code consistently favors alternative approaches, which succeed on vLLM but fail on SGLang. TRAE agents consistently match the reference approach, succeeding on SGLang but not vLLM.
+            </p>
+          </div>
+
+          <div class="columns" style="margin-bottom: 1.5rem;">
+            <div class="column">
+              <div class="has-text-centered">
+                <img src="static/images/approach_vllm.png" alt="Approach distribution on vLLM" style="width:100%; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+              </div>
+              <p class="has-text-centered" style="margin-top: 0.5rem; font-size: 0.9rem;"><strong>Figure 5:</strong> Approach distribution on vLLM (39 tasks).</p>
+            </div>
+            <div class="column">
+              <div class="has-text-centered">
+                <img src="static/images/approach_sglang.png" alt="Approach distribution on SGLang" style="width:100%; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+              </div>
+              <p class="has-text-centered" style="margin-top: 0.5rem; font-size: 0.9rem;"><strong>Figure 6:</strong> Approach distribution on SGLang (15 tasks).</p>
+            </div>
+          </div>
+
+          <div class="content has-text-justified">
+            <p>
+              Notably, TRAE (Sonnet) and Claude Code both use <strong>Claude Sonnet 4.5</strong> as the underlying model, yet their performance differs substantially. On vLLM, Claude Code achieves 46.2% True Success while TRAE (Sonnet) reaches 28.2%. On SGLang, TRAE (Sonnet) achieves 80.0% while Claude Code reaches only 26.7%. The model is identical, but their scaffolding choices (how they explore, decompose tasks, and iterate) produce different approach distributions and outcomes. This suggests that model capability alone does not determine agent performance, and single-codebase evaluations can overstate generalization.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Open-Source Models -->
+  <section class="section">
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column is-full">
@@ -473,7 +479,7 @@ Final status: max_steps_exceeded (400 steps)</code></pre>
 
 
   <!-- BibTeX -->
-  <section class="section" id="BibTeX">
+  <section class="section hero is-light" id="BibTeX">
     <div class="container is-max-desktop content">
       <div class="bibtex-header">
         <h2 class="title">BibTeX</h2>
@@ -506,6 +512,151 @@ Final status: max_steps_exceeded (400 steps)</code></pre>
       </div>
     </div>
   </footer>
+
+  <!-- Chart.js Initialization -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const agents = ['Claude Code', 'Codex CLI', 'TRAE (Sonnet)', 'TRAE (GPT-5)'];
+
+    // Color palette
+    const colors = {
+      vllm: '#4e79a7',
+      sglang: '#e15759',
+      hard: '#a0cbe8',
+      true: '#4e79a7',
+      q1: '#59a14f',
+      q2: '#edc948',
+      q3: '#f28e2b',
+      q4: '#e15759'
+    };
+
+    // Shared chart options
+    const defaultOptions = {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top', labels: { font: { family: 'Inter, sans-serif', size: 12 } } },
+        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + ctx.raw + (ctx.dataset.isCount ? '' : '%'); } } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { font: { family: 'Inter, sans-serif' } } },
+        x: { ticks: { font: { family: 'Inter, sans-serif', size: 11 } } }
+      }
+    };
+
+    // 1. True Success Rates
+    new Chart(document.getElementById('trueSuccessChart'), {
+      type: 'bar',
+      data: {
+        labels: agents,
+        datasets: [
+          { label: 'vLLM (39 tasks)', data: [46.2, 20.5, 28.2, 17.9], backgroundColor: colors.vllm, borderRadius: 4 },
+          { label: 'SGLang (15 tasks)', data: [26.7, 80.0, 80.0, 86.7], backgroundColor: colors.sglang, borderRadius: 4 }
+        ]
+      },
+      options: {
+        ...defaultOptions,
+        plugins: {
+          ...defaultOptions.plugins,
+          title: { display: true, text: 'True Success Rate (%)', font: { family: 'Inter, sans-serif', size: 14, weight: '600' } }
+        },
+        scales: {
+          ...defaultOptions.scales,
+          y: { ...defaultOptions.scales.y, max: 100, ticks: { ...defaultOptions.scales.y.ticks, callback: v => v + '%' } }
+        }
+      }
+    });
+
+    // 2. Hard vs True Success - vLLM
+    new Chart(document.getElementById('hardVsTrueVllmChart'), {
+      type: 'bar',
+      data: {
+        labels: agents,
+        datasets: [
+          { label: 'Hard Success', data: [56.4, 33.3, 33.3, 20.5], backgroundColor: colors.hard, borderRadius: 4 },
+          { label: 'True Success', data: [46.2, 20.5, 28.2, 17.9], backgroundColor: colors.true, borderRadius: 4 }
+        ]
+      },
+      options: {
+        ...defaultOptions,
+        scales: {
+          ...defaultOptions.scales,
+          y: { ...defaultOptions.scales.y, max: 70, ticks: { ...defaultOptions.scales.y.ticks, callback: v => v + '%' } }
+        }
+      }
+    });
+
+    // 3. Hard vs True Success - SGLang
+    new Chart(document.getElementById('hardVsTrueSglangChart'), {
+      type: 'bar',
+      data: {
+        labels: agents,
+        datasets: [
+          { label: 'Hard Success', data: [46.7, 80.0, 80.0, 86.7], backgroundColor: colors.hard, borderRadius: 4 },
+          { label: 'True Success', data: [26.7, 80.0, 80.0, 86.7], backgroundColor: colors.true, borderRadius: 4 }
+        ]
+      },
+      options: {
+        ...defaultOptions,
+        scales: {
+          ...defaultOptions.scales,
+          y: { ...defaultOptions.scales.y, max: 100, ticks: { ...defaultOptions.scales.y.ticks, callback: v => v + '%' } }
+        }
+      }
+    });
+
+    // 4. Quadrant Distribution - vLLM (stacked)
+    new Chart(document.getElementById('quadrantVllmChart'), {
+      type: 'bar',
+      data: {
+        labels: agents,
+        datasets: [
+          { label: 'Q1 True Success', data: [18, 8, 11, 7], backgroundColor: colors.q1, isCount: true, borderRadius: 2 },
+          { label: 'Q2 Good Intent', data: [15, 20, 20, 27], backgroundColor: colors.q2, isCount: true, borderRadius: 2 },
+          { label: 'Q3 Lucky Win', data: [4, 5, 2, 1], backgroundColor: colors.q3, isCount: true, borderRadius: 2 },
+          { label: 'Q4 Failure', data: [2, 6, 6, 4], backgroundColor: colors.q4, isCount: true, borderRadius: 2 }
+        ]
+      },
+      options: {
+        ...defaultOptions,
+        plugins: {
+          ...defaultOptions.plugins,
+          legend: { ...defaultOptions.plugins.legend, labels: { ...defaultOptions.plugins.legend.labels, boxWidth: 12 } }
+        },
+        scales: {
+          ...defaultOptions.scales,
+          x: { ...defaultOptions.scales.x, stacked: true },
+          y: { ...defaultOptions.scales.y, stacked: true, max: 39, ticks: { ...defaultOptions.scales.y.ticks } }
+        }
+      }
+    });
+
+    // 5. Quadrant Distribution - SGLang (stacked)
+    new Chart(document.getElementById('quadrantSglangChart'), {
+      type: 'bar',
+      data: {
+        labels: agents,
+        datasets: [
+          { label: 'Q1 True Success', data: [4, 12, 12, 13], backgroundColor: colors.q1, isCount: true, borderRadius: 2 },
+          { label: 'Q2 Good Intent', data: [8, 3, 3, 2], backgroundColor: colors.q2, isCount: true, borderRadius: 2 },
+          { label: 'Q3 Lucky Win', data: [3, 0, 0, 0], backgroundColor: colors.q3, isCount: true, borderRadius: 2 },
+          { label: 'Q4 Failure', data: [0, 0, 0, 0], backgroundColor: colors.q4, isCount: true, borderRadius: 2 }
+        ]
+      },
+      options: {
+        ...defaultOptions,
+        plugins: {
+          ...defaultOptions.plugins,
+          legend: { ...defaultOptions.plugins.legend, labels: { ...defaultOptions.plugins.legend.labels, boxWidth: 12 } }
+        },
+        scales: {
+          ...defaultOptions.scales,
+          x: { ...defaultOptions.scales.x, stacked: true },
+          y: { ...defaultOptions.scales.y, stacked: true, max: 15, ticks: { ...defaultOptions.scales.y.ticks } }
+        }
+      }
+    });
+  });
+  </script>
 
 </body>
 </html>
