@@ -116,7 +116,7 @@ body {
 /* Lab Logo */
 .lab-logo-link {
   display: inline-block;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   transition: var(--transition);
 }
 
@@ -125,7 +125,7 @@ body {
 }
 
 .lab-logo {
-  height: 120px;
+  height: 160px;
   width: auto;
 }
 
