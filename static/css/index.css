@@ -370,12 +370,19 @@ pre {
   font-size: 0.9rem !important;
   overflow-x: auto;
   box-shadow: var(--shadow-sm);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 code {
   background: var(--background-accent) !important;
   color: var(--text-primary) !important;
   font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace !important;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Code blocks (dark theme for logs) */
@@ -780,10 +787,20 @@ pre.code-block code {
     font-size: 0.8rem;
   }
 
-  /* Code blocks: smaller font, full width */
+  /* BibTeX and code blocks: smaller font, wrap text */
+  pre {
+    font-size: 0.75rem !important;
+    padding: 1rem !important;
+  }
+
   pre.code-block {
     font-size: 0.72rem !important;
     padding: 0.75rem !important;
+  }
+
+  .bibtex-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
   /* Tables: ensure horizontal scroll */
@@ -851,6 +868,11 @@ pre.code-block code {
 
   .callout-number {
     font-size: 2rem;
+  }
+
+  pre {
+    font-size: 0.65rem !important;
+    padding: 0.75rem !important;
   }
 
   pre.code-block {
