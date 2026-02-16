@@ -125,11 +125,8 @@ body {
 }
 
 .lab-logo {
-  max-height: 32px;
-  max-width: 120px;
+  height: 60px;
   width: auto;
-  height: auto;
-  opacity: 0.7;
 }
 
 /* Publication Content Styling */
