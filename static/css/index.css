@@ -129,8 +129,7 @@ body {
   max-width: 120px;
   width: auto;
   height: auto;
-  filter: invert(1) contrast(2) brightness(0);
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
 /* Publication Content Styling */
